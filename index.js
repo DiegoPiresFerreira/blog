@@ -2,6 +2,9 @@ const express = require('express');
 const app = express();
 const connection = require('./database/database');
 
+const categories_controller = require('./categories/categories_controller');
+const articles_controller = require('./articles/articles_controller');
+
 // View Engine
 app.set('view engine','ejs');
 
@@ -19,6 +22,9 @@ connection
         console.log(error);
     })
 
+
+app.use('/',categories_controller);
+app.use('/',articles_controller);
 
 //static
 app.use(express.static('public'));
