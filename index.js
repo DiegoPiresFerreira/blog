@@ -34,9 +34,49 @@ app.use(express.static('public'));
 
 
 app.get('/',(req, res)=>{   
-    res.render('index');
+    article.findAll({
+        order: [['id','DESC']]
+    }).then(articles=>{
+        category.findAll().then(categories=>{
+            res.render('index',{articles,categories});
+        })
+    })
 })
 
+app.get('/:slug',(req, res)=>{   
+    const slug = req.params.slug;
+    article.findOne({
+        where: {slug}
+    }).then(article=>{
+        if(article!=undefined){
+            category.findAll().then(categories=>{
+                res.render('article',{article,categories});
+            })
+        }else{
+            res.redirect('/');
+        }
+    }).catch(err=>{
+        res.redirect("/");
+    })
+})
+app.get('/category/:slug',(req, res)=>{
+    const slug = req.params.slug;
+    category.findOne({
+        where: {slug},
+        include: [{model:article}]
+
+    }).then(categori=>{
+        if(categori!=undefined){
+            category.findAll().then(categories=>{
+                res.render('index',{articles:categori.articles, categories})
+            })
+        }else{
+            res.redirect('/')
+        }
+    }).catch(err=>{
+        res.redirect('/')
+    })
+})
 app.listen(8080,()=>{
     console.log("Servidor rodando!");
 })
