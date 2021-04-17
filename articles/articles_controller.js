@@ -77,4 +77,35 @@ router.post('/articles/update',(req, res)=>{
     })
 })
 
+router.get('/articles/page/:num',(req, res)=>{
+    let page = req.params.num;
+    let offset;
+
+    if(isNaN(page) || page==1){
+        offset = 0;
+    }
+    else{
+        offset = (parseInt(page)-1) * parseInt(page);
+    }
+
+    articles.findAndCountAll({
+        limit:4,
+        offset:offset,
+        order:[['id','DESC']]
+    }).then(articles=>{
+
+        let next = true;
+        if(offset + 4>= articles.count){
+            next = false;
+        }
+        
+        const result = {articles,next:next, page:parseInt(page)};
+        category.findAll().then(categories=>{
+            res.render('admin/articles/page',{result,categories});
+        })
+        
+        
+    })
+})
+
 module.exports = router;
